@@ -2,25 +2,49 @@ import { useForm } from "react-hook-form";
 import "./SignUp.css";
 import { Link, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { useState } from "react";
+import { useSaveUserMutation } from "../../redux/features/auth/authApi";
+import { useDispatch } from "react-redux";
+import { setUser } from "../../redux/features/auth/authSlice";
 
 const SignUp = () => {
-    const [error, setError] = useState("");
-    //  const navigate = useNavigate();
+  const navigate = useNavigate();
+
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm();
 
-  const onSubmit = (data) => {
-    console.log(data);
-    setError("");
-    const password = data.password;
-    const confirmPassword = data.confirmPass;
-    if (password !== confirmPassword) {
-      setError("Your password did not match");
-      return;
+  const [saveUser] = useSaveUserMutation();
+  const dispatch = useDispatch();
+
+  const onSubmit = async (data) => {
+    try {
+      const saveUserInfo = {
+        name: data.name,
+        email: data.email,
+        role: data.role,
+        phoneNumber: data.phoneNumber,
+        password: data.password,
+        photoURL: data.photoURL,
+      };
+
+      const user = {
+        name: data.name,
+        email: data.email,
+        role: data.role,
+      };
+
+      // Save to db and wait for the response
+      const response = await saveUser(saveUserInfo).unwrap();
+
+      dispatch(setUser({ user: user, token: response.data.token }));
+      console.log(response);
+
+      navigate("/");
+    } catch (error) {
+      // Handle the error, e.g., display an error message
+      console.error("Registration failed:", error);
     }
   };
 
@@ -57,68 +81,59 @@ const SignUp = () => {
           </p>
         )}
 
-        <label className="text-sm sm:text-base">Password</label>
+        <div className="flex items-center justify-between gap-2">
+          <div className="w-[67%]">
+            <label className="text-sm sm:text-base">Password</label>
+            <input
+              type="password"
+              name="password"
+              defaultValue=""
+              {...register("password", {
+                required: true,
+              })}
+              required
+            />
+            {errors.password?.type === "required" && (
+              <p className="text-red-500 -mt-5">
+                <small>Password is required</small>
+              </p>
+            )}
+          </div>
+          <div className="w-[25%]">
+            <label className="text-sm sm:text-base font-semibold">Role: </label>
+            <select {...register("role")}>
+              <option value="renter">renter</option>
+              <option value="owner">owner</option>
+            </select>
+            {errors.role?.type === "required" && (
+              <p className="text-red-500 -mt-5">
+                <small>Role is required</small>
+              </p>
+            )}
+          </div>
+        </div>
+
+        <label className="text-sm sm:text-base">Phone</label>
         <input
-          type="password"
-          name="password"
-          defaultValue=""
-          {...register("password", {
+          type="text"
+          name="phoneNumber"
+          defaultValue="017****"
+          {...register("phoneNumber", {
             required: true,
-            minLength: 6,
-            pattern: /(?=.*[A-Z])(?=.*[!@#$&*])(?=.*[0-9])(?=.*[a-z])/,
+            pattern: /^01\d{9}$/,
           })}
           required
         />
-        {errors.password?.type === "required" && (
+        {errors.phoneNumber?.type === "required" && (
           <p className="text-red-500 -mt-5">
-            <small>Password is required</small>
+            <small>Phone Number is required</small>
           </p>
         )}
-        {errors.password?.type === "minLength" && (
+        {errors.phoneNumber?.type === "pattern" && (
           <p className="text-red-500 -mt-5">
-            <small>Password must be 6 character</small>
+            <small>Enter valid(BD) phone number</small>
           </p>
         )}
-        {errors.password?.type === "pattern" && (
-          <p className="text-red-500 -mt-5 ">
-            <small>
-              Password must have one Uppercase one lower case, one number and
-              one special character
-            </small>
-          </p>
-        )}
-
-        <label className="text-sm sm:text-base">Confirm Password</label>
-        <input
-          type="password"
-          name="password"
-          defaultValue=""
-          {...register("confirmPass", {
-            required: true,
-            minLength: 6,
-            pattern: /(?=.*[A-Z])(?=.*[!@#$&*])(?=.*[0-9])(?=.*[a-z])/,
-          })}
-          required
-        />
-        {errors.password?.type === "required" && (
-          <p className="text-red-500 -mt-5">
-            <small>Password is required</small>
-          </p>
-        )}
-        {errors.password?.type === "minLength" && (
-          <p className="text-red-500 -mt-5 ">
-            <small>Password must be 6 character</small>
-          </p>
-        )}
-        {errors.password?.type === "pattern" && (
-          <p className="text-red-500 -mt-5">
-            <small>
-              Password must have one Uppercase one lower case, one number and
-              one special character
-            </small>
-          </p>
-        )}
-
         <label className="text-sm sm:text-base">Photo Url</label>
         <input
           type="url"
@@ -137,11 +152,6 @@ const SignUp = () => {
           value="sign up"
           className="btn bg-pink-500 hover:bg-pink-600 border-none btn-block rounded-3xl"
         />
-        {error && (
-          <p className="text-red-500 font-bold -mt-3">
-            <small>{error}</small>
-          </p>
-        )}
         <p>
           <small>
             Already have an Account? Please{" "}

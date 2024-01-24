@@ -1,35 +1,46 @@
 import { useForm } from "react-hook-form";
 import "./Login.css";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { Helmet } from "react-helmet-async";
-import { Toaster, toast } from "react-hot-toast";
+import { Toaster } from "react-hot-toast";
+import { useLoginMutation } from "../../redux/features/auth/authApi";
+import { setUser } from "../../redux/features/auth/authSlice";
+import { useDispatch } from "react-redux";
+import { verifyToken } from "../../utils/verifyToken";
 
 const Login = () => {
-  const [error, setError] = useState('');
   const [show, setShow] = useState(false);
   const navigate = useNavigate();
-  const location = useLocation();
-  const emailRef = useRef();
+  const dispatch = useDispatch();
 
-  const from = location.state?.from?.pathname || "/";
-  
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm();
+  } = useForm({
+    defaultValues: {
+      email: "jhon.smith@example.com",
+      password: "owner123",
+    },
+  });
+  const [login, { data }] = useLoginMutation();
+  console.log("data", data);
 
-  const onSubmit = (data) => {
-    const email = data.email;
-    const password = data.password;
+  const onSubmit = async (data) => {
+    const userInfo = {
+      email: data.email,
+      password: data.password,
+    };
 
-    const loggedUser = {
-      email, 
-      password, 
-    }
-    console.log(loggedUser);
+    // * Login user
+    const response = await login(userInfo);
+    const user = verifyToken(response.data.token);
+
+    dispatch(setUser({ user: user, token: response.data.token }));
+
+    // navigate('/')
   };
 
   return (
@@ -43,7 +54,6 @@ const Login = () => {
         <input
           type="email"
           name="email"
-          ref={emailRef}
           {...register("email", { required: true })}
           required
         />
@@ -55,16 +65,19 @@ const Login = () => {
 
         <label className="text-sm sm:text-base">Password</label>
         <input
-          type={show ? "text" : "password" }
+          type={show ? "text" : "password"}
           name="password"
           {...register("password", {
             required: true,
-            minLength: 6,
-            pattern: /(?=.*[A-Z])(?=.*[!@#$&*])(?=.*[0-9])(?=.*[a-z])/,
           })}
           required
         />
-        <p className="-mt-4" onClick={()=> setShow(!show)}><small> {show ? <span>Hide Password</span> : <span>Show Password</span> }</small></p>
+        <p className="-mt-4 cursor-pointer" onClick={() => setShow(!show)}>
+          <small>
+            {" "}
+            {show ? <span>Hide Password</span> : <span>Show Password</span>}
+          </small>
+        </p>
         {errors.password?.type === "required" && (
           <p className="text-red-500 -mt-5">
             <small>Password is required</small>
@@ -89,7 +102,6 @@ const Login = () => {
           value="Login"
           className="btn bg-pink-500 hover:bg-pink-600 border-none btn-block rounded-3xl"
         />
-        {error && <p className="text-red-500 font-bold -mt-3"><small>{error}</small></p>}
         <p>
           <small>
             New to UniBookings? Please{" "}
@@ -99,7 +111,7 @@ const Login = () => {
           </small>
         </p>
       </form>
-      <Toaster/>
+      <Toaster />
     </div>
   );
 };
