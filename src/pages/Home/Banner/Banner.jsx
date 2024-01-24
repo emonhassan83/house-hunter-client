@@ -8,7 +8,7 @@ const Banner = () => {
   const [houses, setHouses] = useState({});
 
   useEffect(() => {
-    const url = "http://localhost:5000/api/house-owner/all-owner-houses";
+    const url = "https://house-hunter-server-rho.vercel.app/api/house-owner/all-owner-houses";
 
     axios
       .get(url)
