@@ -25,8 +25,7 @@ const Login = () => {
       password: "owner123",
     },
   });
-  const [login, { data }] = useLoginMutation();
-  console.log("data", data);
+  const [login ] = useLoginMutation();
 
   const onSubmit = async (data) => {
     const userInfo = {
@@ -40,7 +39,7 @@ const Login = () => {
 
     dispatch(setUser({ user: user, token: response.data.token }));
 
-    // navigate('/')
+    navigate('/')
   };
 
   return (

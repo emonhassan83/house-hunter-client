@@ -1,22 +1,28 @@
 import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Link, NavLink } from "react-router-dom";
-
+import { logout } from "../../../redux/features/auth/authSlice";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
- let user = null;
+  const {user} = useSelector(state => state.auth);
+  const dispatch = useDispatch();
+
+  const handleLogout = () => {
+    dispatch(logout());
+  };
 
   return (
-    <div className="max-w-[2520px] xl:px-28 md:px-10 sm:px-2 lg:py-2 w-full px-4  mx-auto">
+    <div className="max-w-[2520px] xl:px-20 md:px-6 sm:px-2 lg:py-2 w-full px-4  mx-auto">
       <div className="relative flex items-center justify-between">
         <Link
           to="/"
-          aria-label=""
-          title=""
+          aria-label="Home"
+          title="Home"
           className="inline-flex items-center"
         >
-          <div className="flex items-center justify-center w-40 h-28">
-            <h2 className="text-xl font-bold">Web Name  Icon</h2>
+          <div className="flex items-center justify-center w-36 h-28">
+            <h2 className="text-xl font-bold">House Hunter</h2>
           </div>
         </Link>
         <ul className="items-center hidden space-x-8 lg:flex text-black">
@@ -32,53 +38,28 @@ const Navbar = () => {
           </li>
           <li>
             <NavLink
-              to="/"
-              aria-label=""
-              title=""
+              to="/dashboard"
+              aria-label="Dashboard"
+              title="Dashboard"
               className={({ isActive }) => (isActive ? "active" : "default")}
             >
-              Route1
+              Dashboard
             </NavLink>
           </li>
-          <li>
-            <NavLink
-              to="/"
-              aria-label=""
-              title=""
-              className={({ isActive }) => (isActive ? "active" : "default")}
-            >
-              Route2
-            </NavLink>
-          </li>
-              <li>
-                <NavLink
-                  to="/"
-                  aria-label=""
-                  title=""
-                  className={({ isActive }) =>
-                    isActive ? "active" : "default"
-                  }
-                >
-                  Route3
-                </NavLink>
-              </li>
         </ul>
         {user ? (
           <div className="hidden lg:flex  items-center gap-1">
-            <Link to="/profile">
-            <div className="mt-6">
-              <label tabIndex={0} className="btn btn-ghost btn-circle avatar">
-                <div className="w-9 rounded-full">
-                  <img title={user?.displayName} src={user?.photoURL} />
-                </div>
-              </label>
-            </div>
+            <Link to="/">
+              <div className="mt-6">
+                <label tabIndex={0} className="btn btn-ghost btn-circle avatar">
+                  <div className="w-9 rounded-full">
+                    <img title={user?.name} src="https://i.ibb.co/WGJ6J0H/student.png" />
+                  </div>
+                </label>
+              </div>
             </Link>
             <li>
-              <button
-  
-                className="btn btn-outline hidden lg:block btn-sm px-5 rounded-3xl text-black hover:bg-[#A81C51] hover:border-none my-4 uppercase"
-              >
+              <button onClick={handleLogout} className="btn btn-outline hidden lg:block btn-sm px-5 rounded-3xl text-black hover:bg-[#A81C51] hover:border-none my-4 uppercase">
                 Logout
               </button>
             </li>
@@ -120,12 +101,12 @@ const Navbar = () => {
                   <div>
                     <Link
                       to="/"
-                      aria-label=""
-                      title=""
+                      aria-label="Home"
+                      title="Home"
                       className="inline-flex items-center"
                     >
                       <div className="flex items-center justify-center w-20 h-16">
-                        <h4 className=" font-bold">Web Name / Logo</h4>
+                        <h4 className=" font-bold">House Hunter</h4>
                       </div>
                     </Link>
                   </div>
@@ -149,56 +130,33 @@ const Navbar = () => {
                   <ul className="space-y-4">
                     <li>
                       <Link
-                        to="/"
-                        aria-label=""
-                        title=""
+                        to="/dashboard"
+                        aria-label="Dashboard"
+                        title="Dashboard"
                         className="font-medium tracking-wide text-gray-700 transition-colors duration-200 hover:text-deep-purple-accent-400"
                       >
-                        Route1
+                        Dashboard
                       </Link>
                     </li>
-                    <li>
-                      <Link
-                        to="/"
-                        aria-label=""
-                        title=""
-                        className="font-medium tracking-wide text-gray-700 transition-colors duration-200 hover:text-deep-purple-accent-400"
-                      >
-                        Route2
-                      </Link>
-                    </li>
-                    
-                        <li>
-                          <Link
-                            to="/"
-                            aria-label=""
-                            title=""
-                            className="font-medium tracking-wide text-gray-700 transition-colors duration-200 hover:text-deep-purple-accent-400"
-                          >
-                            Route3
-                          </Link>
-                        </li>
-                        {user ? (
+                    {user ? (
                       <>
-                        <Link to="/profile">
-                        <li>
-                          <label
-                            tabIndex={0}
-                            className="btn btn-ghost btn-circle avatar"
-                          >
-                            <div className="w-9 rounded-full">
-                              <img
-                                title={user?.displayName}
-                                src={user?.photoURL}
-                              />
-                            </div>
-                          </label>
-                        </li>
+                        <Link to="/">
+                          <li>
+                            <label
+                              tabIndex={0}
+                              className="btn btn-ghost btn-circle avatar"
+                            >
+                              <div className="w-9 rounded-full">
+                                <img
+                                  title={user?.name}
+                                  src="https://i.ibb.co/WGJ6J0H/student.png"
+                                />
+                              </div>
+                            </label>
+                          </li>
                         </Link>
                         <li>
-                          <button
-                            className="btn btn-outline btn-sm px-5 rounded-3xl text-black hover:bg-[#A81C51] hover:border-none uppercase -ml-2"
-                          >
+                          <button onClick={handleLogout} className="btn btn-outline btn-sm px-5 rounded-3xl text-black hover:bg-[#A81C51] hover:border-none uppercase -ml-2">
                             Logout
                           </button>
                         </li>

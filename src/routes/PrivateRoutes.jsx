@@ -1,13 +1,16 @@
 
+import { useSelector } from "react-redux";
 import { Navigate, useLocation } from "react-router-dom";
+import { useCurrentToken } from "../redux/features/auth/authSlice";
 // import Loader from "../components/Loader/Loader";
 
 
 const PrivateRoute = ({children}) => {
-    const user = null;
+    const token = useSelector(useCurrentToken);
+    console.log(token);
     const location = useLocation();
 
-    if (user) {
+    if (!token) {
         return children;
     }
     // if (loading) {
